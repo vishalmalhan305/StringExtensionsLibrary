@@ -1,13 +1,8 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
   - main
 
 pool:
-  name: Self-Hosted-Agent # Ensure you have a self-hosted agent configured
+  name: 'COMP367-Windows'
 
 steps:
   - task: UseDotNet@2
@@ -26,5 +21,4 @@ steps:
       command: 'push'
       packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
       nuGetFeedType: 'internal'
-      publishVstsFeed: '<Your Azure Artifacts Feed ID>'
 
