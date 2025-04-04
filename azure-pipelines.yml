@@ -1,5 +1,5 @@
 trigger:
-  - master
+  - main
 
 pool:
   name: 'COMP367-Windows'  # Your self-hosted agent pool
@@ -8,29 +8,36 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  nugetFeed: 'Lab04'  
+  nugetFeed: 'Lab04'  # Name of your Azure Artifacts feed
 
 steps:
-  - task: NuGetToolInstaller@1
-
-  - task: NuGetCommand@2
+  - task: UseDotNet@2
+    displayName: 'Install .NET SDK'
     inputs:
-      restoreSolution: '$(solution)'
+      packageType: 'sdk'
+      version: '8.0.x'  # Ensure .NET 8 is installed
 
-  - task: VSBuild@1
+  - task: DotNetCoreCLI@2
+    displayName: 'Restore Dependencies'
     inputs:
-      solution: '$(solution)'
-      platform: '$(buildPlatform)'
-      configuration: '$(buildConfiguration)'
+      command: 'restore'
+      projects: '$(solution)'
 
-  - task: NuGetCommand@2
+  - task: DotNetCoreCLI@2
+    displayName: 'Build Solution'
+    inputs:
+      command: 'build'
+      projects: '$(solution)'
+      arguments: '--configuration $(buildConfiguration)'
+
+  - task: DotNetCoreCLI@2
     displayName: 'Pack NuGet Package'
     inputs:
       command: 'pack'
-      packagesToPack: '**/*.csproj'
-      packDestination: '$(Build.ArtifactStagingDirectory)'
+      projects: '**/*.csproj'  # Targets all projects
+      arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 
-  - task: NuGetCommand@2
+  - task: DotNetCoreCLI@2
     displayName: 'Push to Azure Artifacts'
     inputs:
       command: 'push'
