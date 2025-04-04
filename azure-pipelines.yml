@@ -2,12 +2,13 @@ trigger:
   - master
 
 pool:
-  name: 'COMP367-Windows'
+  name: 'COMP367-Windows'  # Your self-hosted agent pool
 
 variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  nugetFeed: 'Lab04'  
 
 steps:
   - task: NuGetToolInstaller@1
@@ -19,11 +20,20 @@ steps:
   - task: VSBuild@1
     inputs:
       solution: '$(solution)'
-      msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
 
-  - task: VSTest@2
+  - task: NuGetCommand@2
+    displayName: 'Pack NuGet Package'
     inputs:
-      platform: '$(buildPlatform)'
-      configuration: '$(buildConfiguration)'
+      command: 'pack'
+      packagesToPack: '**/*.csproj'
+      packDestination: '$(Build.ArtifactStagingDirectory)'
+
+  - task: NuGetCommand@2
+    displayName: 'Push to Azure Artifacts'
+    inputs:
+      command: 'push'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+      nuGetFeedType: 'internal'
+      publishVstsFeed: '$(nugetFeed)'
