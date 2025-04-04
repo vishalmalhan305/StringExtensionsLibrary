@@ -8,7 +8,7 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  nugetFeed: 'Lab04'  # Name of your Azure Artifacts feed
+  nugetFeed: 'MyNuGetFeed'  # Name of your Azure Artifacts feed
 
 steps:
   - task: UseDotNet@2
@@ -43,4 +43,4 @@ steps:
       command: 'push'
       packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
       nuGetFeedType: 'internal'
-      publishVstsFeed: '$(nugetFeed)'
+      publishVstsFeed: 'bbc508bf-acd8-48a0-a91f-f81eb65c8a3b/0400ba03-474a-4946-aa18-14bd42999775'
